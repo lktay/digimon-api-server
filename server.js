@@ -2,17 +2,24 @@
 //imports
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors");
 require("dotenv").config();
 const app = express();
+app.use(cors());
 
 const PORT1 = 3001;
 const PORT = process.env.PORT || 3001;
 
-app.get("/", (req, res) => {
-  res.send("App is running");
-});
+app.get("/", homeHandler);
+app.get("/alldigimon", allDigimonHandler);
+app.get("/ultimatedigimon", ultimateDigimonHandler);
+app.get("*", errorHandler);
 
-app.get("/alldigimon", async (req, res) => {
+function homeHandler(req, res) {
+  res.send("App is running");
+}
+
+async function allDigimonHandler(req, res) {
   try {
     const digimonListRes = await axios.get(
       "https://digimon-api.vercel.app/api/digimon"
@@ -23,9 +30,8 @@ app.get("/alldigimon", async (req, res) => {
   } catch (err) {
     res.status(500).send("something went wrong");
   }
-});
-
-app.get("/ultimatedigimon", async (req, res) => {
+}
+async function ultimateDigimonHandler(req, res) {
   try {
     const digimonListRes = await axios.get(
       "https://digimon-api.vercel.app/api/digimon/level/ultimate"
@@ -36,7 +42,11 @@ app.get("/ultimatedigimon", async (req, res) => {
   } catch (err) {
     res.status(500).send("something went wrong");
   }
-});
+}
+
+function errorHandler(req, res) {
+  res.status(404).send("not found");
+}
 
 class Digimon {
   constructor(data) {
